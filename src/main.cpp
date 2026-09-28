@@ -23,12 +23,6 @@ void handleInput(sf::Window& window, bool& shouldQuit) {
             shouldQuit = true;
         }
 
-        // ====== ====== ======
-        // TODO: (Q2)
-        //  implement key presses (1-9) that replace the tween function
-        //  with different alternate tween functions.
-        //  Functions can be from lecture or from https://easings.net/#
-        // ====== ====== ======
         if(const auto *keyPressed = event->getIf<sf::Event::KeyPressed>()){
             
             if(keyPressed->scancode == sf::Keyboard::Scan::Num1){
@@ -37,7 +31,6 @@ void handleInput(sf::Window& window, bool& shouldQuit) {
                     return (1 - r) * a + r * b;
                 };
             }//ease out cubic
-            break;
 
             if(keyPressed->scancode == sf::Keyboard::Scan::Num2){
                 tween = [](float a, float b, float t){
@@ -102,7 +95,7 @@ void handleInput(sf::Window& window, bool& shouldQuit) {
             }//ease out expo
         }
     }
-}
+}//all functions used here were sampled from https://easings.net, I implemented them in C++ terms myself
 
 void render(sf::RenderWindow& window) {
     // Clear with blue background (sky)
@@ -120,13 +113,43 @@ void render(sf::RenderWindow& window) {
     shape.setOrigin(sf::Vector2f(5, 5));
     shape.setPosition(sf::Vector2(x, WINDOW_HEIGHT/3.0f));
     window.draw(shape);
+    //draw circle and do animation w/tween
+
+    sf::VertexArray yAxis(sf::PrimitiveType::Lines, 2);
+    yAxis[0].position = sf::Vector2f(50.0f, WINDOW_HEIGHT - 50.0f);
+    yAxis[1].position = sf::Vector2f(50.0f, WINDOW_HEIGHT - 350.0f);
+    yAxis[0].color = sf::Color::White;
+    yAxis[1].color = sf::Color::White;
+    window.draw(yAxis);
+
+    sf::VertexArray xAxis(sf::PrimitiveType::Lines, 2);
+    xAxis[0].position = sf::Vector2f(50.0f, WINDOW_HEIGHT - 50.0f);
+    xAxis[1].position = sf::Vector2f(50.0f + 650.0f, WINDOW_HEIGHT - 50.0f);
+    xAxis[0].color = sf::Color::White;
+    xAxis[1].color = sf::Color::White;
+    window.draw(xAxis);
+    //set up the x and y axis for the graph using a vertex array
+
+    int steps = 100;
+    sf::VertexArray curve(sf::PrimitiveType::LineStrip, steps + 1);
+    for(int i = 0; i <= steps; i++){
+        float position = static_cast<float>(i) / steps;
+        float tween1 = tween(0.0f, 1.0f, position);
+        curve[i].position = sf::Vector2f(std::lerp(50.0f, 50.0f + 650.0f, position), std::lerp(WINDOW_HEIGHT - 50.0f, (WINDOW_HEIGHT - 50.0f) - 350.0f, tween1));
+        curve[i].color = sf::Color::Cyan;
+    }
+    window.draw(curve);
+    //Do something similar but with a curve--lerping used to fit points inside the defined graph
+
+    //dot draw
+    float current = tween(0.0f, 1.0f, time);
+    sf::CircleShape dot(5.0f);
+    dot.setOrigin(sf::Vector2f(5.0f, 5.0f));
+    dot.setPosition(sf::Vector2f(std::lerp(50.0f, 50.0f + 650.0f, time), std::lerp(WINDOW_HEIGHT - 50.0f, (WINDOW_HEIGHT - 50.0f) - 350.0f, current)));
+    dot.setFillColor(sf::Color::Yellow);
+    window.draw(dot);
+    //lerping used in the same context
     
-
-    // ====== ====== ======
-    // TODO: (Q3) Draw tween function graph with a dot
-    // on the current portion of the curve
-    // ====== ====== ======
-
     window.display();
 }
 
