@@ -29,17 +29,98 @@ void handleInput(sf::Window& window, bool& shouldQuit) {
         //  with different alternate tween functions.
         //  Functions can be from lecture or from https://easings.net/#
         // ====== ====== ======
+        if(const auto *keyPressed = event->getIf<sf::Event::KeyPressed>()){
+            
+            if(keyPressed->scancode == sf::Keyboard::Scan::Num1){
+                tween = [](float a, float b, float t){
+                    float r = 1.0f - std::pow(1.0f - t, 3.0f);
+                    return (1 - r) * a + r * b;
+                };
+            }//ease out cubic
+            break;
+
+            if(keyPressed->scancode == sf::Keyboard::Scan::Num2){
+                tween = [](float a, float b, float t){
+                    const int constant1 = 1.70158;
+                    const int constant3 = constant1 + 1;
+
+                    float r = constant3 * t * t * t - constant1 * t * t;
+                    return (1 - r) * a + r * b;
+                };
+            }//ease In Back
+
+            if(keyPressed->scancode == sf::Keyboard::Scan::Num3){
+                tween = [](float a, float b, float t){
+                    float pi = 3.141592653;
+                    float r = 1.0f - std::cos((t*pi) / 2);
+                    return (1 - r) * a + r * b;
+                };
+            }//ease in sine
+
+            if(keyPressed->scancode == sf::Keyboard::Scan::Num4){
+                tween = [](float a, float b, float t){
+                    float r = 0 ? 0 : std::pow(2, 10*t - 10);
+                    return (1 - r) * a + r * b;
+                };
+            }//ease in expo
+
+            if(keyPressed->scancode == sf::Keyboard::Scan::Num5){
+                tween = [](float a, float b, float t){
+                    float pi = 3.141592653;
+                    float r = std::sin((t*pi)/2);
+                    return (1 - r) * a + r * b;
+                };
+            }//ease out sine
+
+            if(keyPressed->scancode == sf::Keyboard::Scan::Num6){
+                tween = [](float a, float b, float t){
+                    float pi = 3.141592653;
+                    float r = -(std::cos(pi * t) - 1) / 2;
+                    return (1 - r) * a + r * b;
+                };
+            }//ease in out sine
+
+            if(keyPressed->scancode == sf::Keyboard::Scan::Num7){
+                tween = [](float a, float b, float t){
+                    float r = t*t*t*t*t;
+                    return (1 - r) * a + r * b;
+                };
+            }//ease in quint
+
+            if(keyPressed->scancode == sf::Keyboard::Scan::Num8){
+                tween = [](float a, float b, float t){
+                    float r = 1 - std::pow(1 - t, 5);
+                    return (1 - r) * a + r * b;
+                };
+            }//ease out quint
+
+            if(keyPressed->scancode == sf::Keyboard::Scan::Num9){
+                tween = [](float a, float b, float t){
+                    float r = 1 - (1 - t) * (1 - t);
+                    return (1 - r) * a + r * b;
+                };
+            }//ease out expo
+        }
     }
 }
 
 void render(sf::RenderWindow& window) {
     // Clear with blue background (sky)
     window.clear(sf::Color::Black);
-    // ====== ====== ======
-    // TODO: (Q1) Draw circle that moves between
-    // the left/right half of the screen.
-    // Movement should be governed by the tween function.
-    // ====== ====== ======
+
+    static int frames = 0;
+    int framesWanted = 200;
+    float time = static_cast<float>(frames % framesWanted)/framesWanted;
+    float x = tween(0.0f, WINDOW_WIDTH, time);
+    frames++;
+
+    sf::CircleShape shape;
+    shape.setRadius(20);
+    shape.setFillColor(sf::Color::Green);
+    shape.setOrigin(sf::Vector2f(5, 5));
+    shape.setPosition(sf::Vector2(x, WINDOW_HEIGHT/3.0f));
+    window.draw(shape);
+    
 
     // ====== ====== ======
     // TODO: (Q3) Draw tween function graph with a dot
